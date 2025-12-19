@@ -5,4 +5,4 @@
 - create a server 
 - Listen to any port server 
 - Write a request handler
-- install nodemon and update scripts inside the package.json 
+- install nodemon and update scripts inside the package.json
