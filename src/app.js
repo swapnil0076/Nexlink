@@ -1,18 +1,25 @@
 const express = require('express');
+const {sampleData} = require('./Data');
 
 const app = express();
 
 
-app.use("/first", (req, res) =>{
-  res.send("Hello From Server");
-})
+app.get("/user/:user_id", (req, res) =>{
 
-app.use("/hello", (req, res) =>{
-  res.send("Hello Hello Hello");
-})
+  
 
-app.use("/test", (req, res) =>{
-  res.send("Server is testing the NodeMon");
+ sampleData.forEach((user) =>{
+    if(user.id == req.params.user_id){
+      return res.send(user);
+    }
+ })
+
+ console.log(req.params.user_id);
+});
+
+
+app.use("/", (req, res) =>{
+  res.send("Welcome to the Home Page");
 })
 
 
