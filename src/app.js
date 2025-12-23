@@ -1,26 +1,34 @@
 const express = require('express');
-const {sampleData} = require('./Data');
+const { adminAuth , userAuth } = require('../middleware/auth.js');
 
 const app = express();
 
+app.use("/admin", adminAuth);
+app.use("/user", userAuth);
 
-app.get("/user/:user_id", (req, res) =>{
-
-  
-
- sampleData.forEach((user) =>{
-    if(user.id == req.params.user_id){
-      return res.send(user);
-    }
- })
-
- console.log(req.params.user_id);
+app.get("/admin/user",  adminAuth ,(req, res)=>{
+  res.send("Admin route");
 });
 
+app.post("/admin/createNewUser",  adminAuth ,(req, res)=>{
+  res.send("New Admin Created");
+});
 
-app.use("/", (req, res) =>{
-  res.send("Welcome to the Home Page");
-})
+app.delete("/admin/deleteUser",  adminAuth ,(req, res)=>{
+  res.send("Admin Deleted");
+});
+
+app.get("/pkd", (req, res)=>{
+  res.send("User route");
+});
+
+app.post("/user/createNewUser",  userAuth ,(req, res)=>{
+  res.send("New User Created");
+});
+
+app.delete("/user/deleteUser",  userAuth ,(req, res)=>{
+  res.send("User Deleted");
+});
 
 
 app.listen(3000 , () =>{
