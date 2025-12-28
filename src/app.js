@@ -1,39 +1,54 @@
 const express = require('express');
-const { adminAuth , userAuth } = require('../middleware/auth.js');
 
+const connectDB = require('../config/database.js');
 const app = express();
+const User = require('../Models/User.js');
 
-app.use("/admin", adminAuth);
-app.use("/user", userAuth);
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-app.get("/admin/user",  adminAuth ,(req, res)=>{
-  res.send("Admin route");
+app.post('/SignUp' , async (req , res) => {
+ 
+const userDb = {
+  firstName : req.body.firstName,
+  lastName : req.body.lastName,
+  email : req.body.email,
+  password : req.body.password,
+  age : req.body.age,
+  gender : req.body.gender
+}
+
+
+
+const user = new User(userDb);
+
+await user.save().then(() => {
+  res.status(201).send({ message: "User registered successfully" });
+}).catch((err) => {
+  res.status(500).send({ error: "Failed to register user", details: err });
+});
 });
 
-app.post("/admin/createNewUser",  adminAuth ,(req, res)=>{
-  res.send("New Admin Created");
-});
 
-app.delete("/admin/deleteUser",  adminAuth ,(req, res)=>{
-  res.send("Admin Deleted");
-});
+connectDB().then(() => {
+ console.log("Database connected successfully");
 
-app.get("/pkd", (req, res)=>{
-  res.send("User route");
-});
+  app.listen(3000 , () =>{
+    console.log("Server is running on port 3000");
+  });
 
-app.post("/user/createNewUser",  userAuth ,(req, res)=>{
-  res.send("New User Created");
-});
-
-app.delete("/user/deleteUser",  userAuth ,(req, res)=>{
-  res.send("User Deleted");
+}).catch((err) => {
+ console.error("Database connection failed:", err);
 });
 
 
-app.listen(3000 , () =>{
-  console.log("Server is running on port 3000");
-});
+
+
+
+
+
+
+
 
 
 
