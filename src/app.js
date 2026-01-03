@@ -67,10 +67,10 @@ const {userId} = req.body;
 
 app.patch('/user', async (req, res) =>{
 
-const {_id} = req.body.userId;
+const userId = req.body.userId;
 const data = req.body;
 
-  const updatedUser = await User.findOneAndUpdate({_id:user_Id},data)
+  const updatedUser = await User.findOneAndUpdate({_id:userId},data)
 
   console.log(data);
 

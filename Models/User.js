@@ -7,7 +7,8 @@ const userSchema = new mongoose.Schema({
   password : { type: String, required: true},
   age : { type: Number, required: true},
   gender : { type: String, enum: ['male', 'female', 'other'], required: true},
-})
+  photoUrl : { type: String}
+},{timestamps: true});
 
 const UserModel =  mongoose.model('User' , userSchema);
 
