@@ -65,20 +65,37 @@ const {userId} = req.body;
 
 })
 
-app.patch('/user', async (req, res) =>{
+app.patch('/user/:userId', async (req, res) =>{
 
-const userId = req.body.userId;
+const userId = req.params?.userId;
 const data = req.body;
+ try {
+  const AllowedUpdates = ['firstName', 'lastName', 'password', 'photoUrl','skills'];
+  
+  
 
-  const updatedUser = await User.findOneAndUpdate({_id:userId},data)
+  const requestedUpdates = Object.keys(data);
+  const isValidUpdate = requestedUpdates.every((update) => AllowedUpdates.includes(update));
 
-  console.log(data);
+  if(!isValidUpdate){
+    throw new Error("You Cannot Update the Email, Gender or Age of the User");
+  }
+
+  if(data?.skills.length > 10){
+    throw new Error("Cannot add more than 10 skills");
+  }
+
+  const updatedUser = await User.findOneAndUpdate({_id:userId},data,{runValidators:true});
 
   if(!updatedUser){
-    return res.status(404).send({error : "User not found"});
+    throw new Error("User not found");
   }
 
   res.status(200).send("User updated successfully");
+
+ }catch (error) {
+  return res.status(400).send(error.message);
+ }
 
 });
 
