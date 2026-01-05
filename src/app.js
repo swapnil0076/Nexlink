@@ -3,14 +3,35 @@ const express = require('express');
 const connectDB = require('../config/database.js');
 const app = express();
 const User = require('../Models/User.js');
+const { validateUserData } = require('../utils/validator.js');
+const bcrypt = require('bcrypt');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.post('/SignUp' , async (req , res) => {
 
+validateUserData(req.body);
 
-const user = new User(req.body);
+const {password} = req.body;
+
+console.log("Password before hashing: ", password);
+
+const encryptedPassword = await bcrypt.hash(password,1);
+
+console.log("Password after hashing: ", encryptedPassword.toString());
+
+
+const user = new User({
+  firstName : req.body.firstName,
+  lastName : req.body.lastName,
+  email : req.body.email,
+  password : encryptedPassword,
+  age : req.body.age,
+  gender : req.body.gender,
+  photoUrl : req.body.photoUrl,
+  skills : req.body.skills
+});
 
 await user.save().then(() => {
       res.status(201).send({ message: "User registered successfully" });
@@ -23,18 +44,26 @@ await user.save().then(() => {
 app.post('/signIn', async (req , res) =>{
 
   const {email,password} = req.body;
-  console.log(email);
 
-  await User.findOne({email}).then((u) =>{
+  try {
 
-    if(password !== u.password){
-      res.status(401).send("Please check your password");
-    }else{
-      res.status(200).send("User signed in successfully");
+    const user = await User.findOne({email:email});
+
+    if(!user){
+      throw new Error("InCorrect Creditials");
     }
 
-    console.log(u.firstName);
-  })
+    const isPasswordMatch = await bcrypt.compare(password,user.password);
+
+    if(!isPasswordMatch){
+      throw new Error("InCorrect Creditials");
+    }
+    res.status(200).send({message: "Sign In Successful"});
+
+
+  }catch (error) {
+    return res.status(400).send(error.message);
+   }
 
 });
 
