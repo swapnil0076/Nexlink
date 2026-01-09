@@ -56,15 +56,16 @@ app.post('/signIn', async (req , res) =>{
       throw new Error("InCorrect Creditials");
     }
 
-    const isPasswordMatch = await bcrypt.compare(password,user.password);
+    const isPasswordMatch = await user.ValidatePassword(password);
     
 
     if(!isPasswordMatch){
       throw new Error("InCorrect Creditials");
     }
 
-    const token = jsonwebtoken.sign({_id : user._id}, "Ring0076")
-    res.cookie("jwtToken", token )
+    const token = user.jwtToken();
+    
+    res.cookie("jwtToken", token , { expires: new Date(Date.now() + 1*3600000)});
     console.log("Generated Token: ", token);
 
 
@@ -91,65 +92,8 @@ app.get('/profile', userAuth, async (req , res) => {
 });
 
 
-app.get('/getUser/:userId' ,userAuth, async (req , res) => {
- const userId = req.params.userId; 
-
-  await User.findById(userId).then((user) => {
-    if (!user) {
-      return res.status(404).send({ error: "User not found" });
-    }else {
-      res.status(200).send(user);
-    }
-  }).catch((err) => {
-    res.status(500).send({ error: "Failed to retrieve user", details: err });
-  });
-});
 
 
-app.delete('/user',userAuth ,async (req, res) =>{
-
-const {userId} = req.body;
-  await User.findByIdAndDelete(userId).then((u) =>{
-    res.status(200).send("User deleted successfully");
-  }).catch((err) =>{
-    res.status(500).send({ error: "Failed to delete user", details: err });
-  })
-
-})
-
-app.patch('/user/:userId', userAuth, async (req, res) =>{
-
-const userId = req.params?.userId;
-const data = req.body;
- try {
-  const AllowedUpdates = ['firstName', 'lastName', 'password', 'photoUrl','skills'];
-  
-  
-
-  const requestedUpdates = Object.keys(data);
-  const isValidUpdate = requestedUpdates.every((update) => AllowedUpdates.includes(update));
-
-  if(!isValidUpdate){
-    throw new Error("You Cannot Update the Email, Gender or Age of the User");
-  }
-
-  if(data?.skills.length > 10){
-    throw new Error("Cannot add more than 10 skills");
-  }
-
-  const updatedUser = await User.findOneAndUpdate({_id:userId},data,{runValidators:true});
-
-  if(!updatedUser){
-    throw new Error("User not found");
-  }
-
-  res.status(200).send("User updated successfully");
-
- }catch (error) {
-  return res.status(400).send(error.message);
- }
-
-});
 
 
 connectDB().then(() => {
