@@ -1,26 +1,35 @@
 
-const adminAuth = (req, res, next) => {
-  console.log("Admin Auth Middleware Invoked");
-  const authToken = 'abc'
-  const isAdmin = authToken === 'abc';
-  if (!isAdmin) {
-    return res.status(403).send('Access denied. Admins only.');
-  }else{
-  next();
+const jwt = require('jsonwebtoken');
+const UserModel = require('../Models/User.js');
+
+
+const userAuth = async (req , res, next) =>{
+
+  try{
+
+    const token = req.cookies.jwtToken;
+
+      if(!token){
+        throw new Error("Authentication token not found");
+      }
+
+      const decode = jwt.verify(token, "Ring0076");
+
+      const user = await UserModel.findById(decode._id);
+
+      if(!user){
+        throw new error("User not found");
+      }
+      res.send(user);
+      next();
+
+
+  }catch(err){
+    return res.status(400).send(err.message);
   }
+
 };
 
-const userAuth = (req, res, next) => {
 
-  console.log("User Auth Middleware Invoked");
-  
-  const authToken = 'abc'
-  const isUser = authToken === 'abc';
-  if (!isUser || authToken !== 'abc') {
-    return res.status(403).send('Access denied. Users only.');
-  }else{
-    next();
-  }
-};
 
-module.exports = {adminAuth, userAuth};
+module.exports = {userAuth};

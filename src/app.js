@@ -1,12 +1,15 @@
 const express = require('express');
-
+const { userAuth } = require('../middleware/auth.js');
 const connectDB = require('../config/database.js');
 const app = express();
 const User = require('../Models/User.js');
 const { validateUserData } = require('../utils/validator.js');
 const bcrypt = require('bcrypt');
+const jsonwebtoken = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
 
 app.use(express.json());
+app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
 app.post('/SignUp' , async (req , res) => {
@@ -54,10 +57,17 @@ app.post('/signIn', async (req , res) =>{
     }
 
     const isPasswordMatch = await bcrypt.compare(password,user.password);
+    
 
     if(!isPasswordMatch){
       throw new Error("InCorrect Creditials");
     }
+
+    const token = jsonwebtoken.sign({_id : user._id}, "Ring0076")
+    res.cookie("jwtToken", token )
+    console.log("Generated Token: ", token);
+
+
     res.status(200).send({message: "Sign In Successful"});
 
 
@@ -67,8 +77,21 @@ app.post('/signIn', async (req , res) =>{
 
 });
 
+app.get('/profile', userAuth, async (req , res) => {
 
-app.get('/getUser/:userId' , async (req , res) => {
+  try{
+     const user = userAuth.user;
+
+      res.status(200).send(user);
+
+  }catch (error) {
+    return res.status(401).send(error.message);
+  }
+
+});
+
+
+app.get('/getUser/:userId' ,userAuth, async (req , res) => {
  const userId = req.params.userId; 
 
   await User.findById(userId).then((user) => {
@@ -83,7 +106,7 @@ app.get('/getUser/:userId' , async (req , res) => {
 });
 
 
-app.delete('/user', async (req, res) =>{
+app.delete('/user',userAuth ,async (req, res) =>{
 
 const {userId} = req.body;
   await User.findByIdAndDelete(userId).then((u) =>{
@@ -94,7 +117,7 @@ const {userId} = req.body;
 
 })
 
-app.patch('/user/:userId', async (req, res) =>{
+app.patch('/user/:userId', userAuth, async (req, res) =>{
 
 const userId = req.params?.userId;
 const data = req.body;
