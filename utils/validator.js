@@ -27,4 +27,10 @@ const validateEditProfileData = (data) =>{
   return isValidAllowed;
 }
 
-module.exports = {validateUserData, validateEditProfileData};
+const validateCurrentPasswordWithUserEnteredPassword = async (user, enteredPassword) => {
+  const isPasswordMatch = await user.ValidatePassword(enteredPassword);
+  return isPasswordMatch;
+}
+
+
+module.exports = {validateUserData, validateEditProfileData, validateCurrentPasswordWithUserEnteredPassword};

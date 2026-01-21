@@ -16,8 +16,6 @@ console.log("Password before hashing: ", password);
 
 const encryptedPassword = await bcrypt.hash(password,1);
 
-console.log("Password after hashing: ", encryptedPassword.toString());
-
 
 const user = new User({
   firstName : req.body.firstName,
@@ -60,11 +58,9 @@ authRouter.post('/signIn', async (req , res) =>{
     const token = user.jwtToken();
     
     res.cookie("jwtToken", token , { expires: new Date(Date.now() + 1*3600000)});
-    console.log("Generated Token: ", token);
 
 
     res.status(200).send({message: "Sign In Successful"});
-
 
   }catch (error) {
     return res.status(400).send(error.message);

@@ -9,9 +9,11 @@ app.use(express.urlencoded({ extended: true }));
 
 const authRouter = require('../Routers/Auth-Router.js');
 const profileRouter = require('../Routers/Profile-Router.js'); 
+const connectionRouter = require('../Routers/Connection-Router.js');
 
 app.use('/', authRouter);
 app.use('/', profileRouter);
+app.use('/', connectionRouter);
 
 
 connectDB().then(() => {
