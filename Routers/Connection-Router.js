@@ -73,26 +73,15 @@ connectionRouter.get('/receivedRequests', userAuth, async (req , res) =>{
 
     const user = req.user;
 
-    const receivedRequests = await Connection.find({toUserId : user._id, status:'pending'});
+    const receivedRequests = await Connection.find({toUserId : user._id,
+       status:'pending'}).populate('fromUserId','firstName lastName email');
 
     const detailedRequests = [];
 
-    
-
-    for(let request of receivedRequests){
-      const fromUser = await User.findById(request.fromUserId);
-
-      console.log(fromUser);
-
-      detailedRequests.push({
-        requestId : request._id,
-        fromUserId : request.fromUserId,
-        fromUserName : `${fromUser.firstName} ${fromUser.lastName}`, 
-        status : request.status,
-        sentAt : request.createdAt
-      });
-
-    }
+    res.json({
+      message: "Date fetched successfully",
+      data: receivedRequests
+    })
 
     res.status(200).send(detailedRequests);
 
@@ -161,13 +150,17 @@ connectionRouter.get(('/getConnections'),userAuth,async (req, res) =>{
         {fromUserId : user._id, status:'accepted'},
         {toUserId : user._id, status:'accepted'}
       ]
-    });
+    }).populate('fromUserId toUserId','firstName lastName email');
 
     if(CurrentConnections.length === 0){
       throw new Error("You have no connections yet");
     }
 
-    res.status(200).send({count: CurrentConnections.length});
+    res.json({
+      message: "Connections fetched successfully",
+      data: CurrentConnections,
+      count: CurrentConnections.length
+    })
     
     
 

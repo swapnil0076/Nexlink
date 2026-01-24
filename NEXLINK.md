@@ -36,9 +36,10 @@
 ## Send Connection Request - 
 
 - Get /myNetwork
-- Post /create/Post
-- Post /Post/react
 - Post /connection Request
 - Post /myNetwork/review/accepted/:requestId
 - Post /myNetwork/review/rejected/:requestId
 - Delete /myNetwork/review/Deleted/:requestId
+
+
+

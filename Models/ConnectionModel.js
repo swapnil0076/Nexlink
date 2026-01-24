@@ -4,8 +4,8 @@ const validator = require('validator');
 
 const connectionSchema = new mongoose.Schema({
 
-  fromUserId : {type:mongoose.Schema.Types.ObjectId, required:true},
-  toUserId : {type:mongoose.Schema.Types.ObjectId, required:true},
+  fromUserId : {type:mongoose.Schema.Types.ObjectId,ref : "User" , required:true},
+  toUserId : {type:mongoose.Schema.Types.ObjectId,ref : "User" , required:true},
   status : {type:String, enum:['accepted','pending','rejected'],required:true,default:'pending'},
 
 
